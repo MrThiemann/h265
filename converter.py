@@ -55,15 +55,43 @@ class VideoConverter:
         # Encoder-spezifische Parameter
         if encoder == "libx264":
             cmd.extend(['-c:v', 'libx264'])
+            # libx264 unterstützt alle Presets
+            cmd.extend(['-preset', preset])
         elif encoder == "h264_nvenc":
             cmd.extend(['-c:v', 'h264_nvenc'])
+            # NVIDIA NVENC unterstützt nur bestimmte Presets
+            if preset in ["veryslow", "slower", "slow"]:
+                cmd.extend(['-preset', 'slow'])
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                cmd.extend(['-preset', 'fast'])
+            else:
+                cmd.extend(['-preset', 'medium'])
         elif encoder == "h264_amf":
             cmd.extend(['-c:v', 'h264_amf'])
+            # AMD AMF unterstützt nur bestimmte Presets
+            if preset in ["veryslow", "slower", "slow"]:
+                cmd.extend(['-quality', 'quality'])
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                cmd.extend(['-quality', 'speed'])
+            else:
+                cmd.extend(['-quality', 'balanced'])
         elif encoder == "h264_qsv":
             cmd.extend(['-c:v', 'h264_qsv'])
+            # Intel QSV unterstützt nur bestimmte Presets
+            if preset in ["veryslow", "slower", "slow"]:
+                cmd.extend(['-preset', 'slow'])
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                cmd.extend(['-preset', 'fast'])
+            else:
+                cmd.extend(['-preset', 'medium'])
         
-        # Qualität und Geschwindigkeit
-        cmd.extend(['-crf', str(crf), '-preset', preset])
+        # Qualität (CRF für libx264, QP für Hardware-Encoder)
+        if encoder == "libx264":
+            cmd.extend(['-crf', str(crf)])
+        else:
+            # Hardware-Encoder verwenden QP statt CRF
+            qp = max(0, min(51, crf))  # Konvertiere CRF zu QP
+            cmd.extend(['-qp', str(qp)])
         
         # Encoding-Profil
         cmd.extend(['-profile:v', profile])
@@ -89,8 +117,8 @@ class VideoConverter:
         return cmd
     
     def convert_single_file(self, input_file: str, output_file: str, 
-                          encoder: str, crf: int, preset: str, 
-                          profile: str, threads: str) -> bool:
+                           encoder: str, crf: int, preset: str, 
+                           profile: str, threads: str) -> bool:
         """Konvertiert eine einzelne Datei"""
         try:
             # Erstelle Ausgabeverzeichnis
@@ -101,11 +129,12 @@ class VideoConverter:
                                           crf, preset, profile, threads)
             
             self.log(f"Starte Konvertierung: {os.path.basename(input_file)}")
-            self.log(f"Befehl: {' '.join(cmd)}")
+            self.log(f"Encoder: {encoder}, Preset: {preset}, Qualität: {crf}")
             
             # Führe FFmpeg aus
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                                     stderr=subprocess.PIPE, text=True)
+                                     stderr=subprocess.PIPE, text=True, 
+                                     bufsize=1, universal_newlines=True)
             
             # Überwache den Prozess
             while True:
@@ -113,9 +142,11 @@ class VideoConverter:
                 if output == '' and process.poll() is not None:
                     break
                 if output:
-                    # Hier könnte man den Fortschritt parsen
-                    if self.progress_callback:
-                        self.progress_callback(output)
+                    # Filtere wichtige Nachrichten
+                    output = output.strip()
+                    if output and not output.startswith('frame='):
+                        if self.progress_callback:
+                            self.progress_callback(output)
             
             # Warte auf Beendigung
             return_code = process.wait()
@@ -124,7 +155,7 @@ class VideoConverter:
                 self.log(f"Konvertierung erfolgreich: {os.path.basename(output_file)}")
                 return True
             else:
-                self.log(f"Fehler bei der Konvertierung: {os.path.basename(input_file)}")
+                self.log(f"Fehler bei der Konvertierung: {os.path.basename(input_file)} (Code: {return_code})")
                 return False
                 
         except Exception as e:

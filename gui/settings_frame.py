@@ -22,6 +22,7 @@ class SettingsFrame(ttk.LabelFrame):
                                          values=list(ENCODERS.keys()), 
                                          state="readonly", width=20)
         self.encoder_combo.pack(side=tk.LEFT, padx=(5, 20))
+        self.encoder_combo.bind('<<ComboboxSelected>>', self.on_encoder_change)
         
         # Preset
         ttk.Label(row1, text="Preset:").pack(side=tk.LEFT)
@@ -29,6 +30,11 @@ class SettingsFrame(ttk.LabelFrame):
         self.preset_combo = ttk.Combobox(row1, textvariable=self.preset_var, 
                                         values=PRESETS, state="readonly", width=15)
         self.preset_combo.pack(side=tk.LEFT, padx=(5, 0))
+        self.preset_combo.bind('<<ComboboxSelected>>', self.on_preset_change)
+        
+        # Warnung für Hardware-Encoder
+        self.warning_label = ttk.Label(row1, text="", foreground="orange")
+        self.warning_label.pack(side=tk.LEFT, padx=(10, 0))
         
         # Zweite Zeile: CRF und Profile
         row2 = ttk.Frame(self)
@@ -103,6 +109,43 @@ class SettingsFrame(ttk.LabelFrame):
                                     variable=self.split_var)
         split_check.pack(side=tk.LEFT, padx=(20, 0))
     
+    def on_encoder_change(self, event=None):
+        """Wird aufgerufen, wenn sich der Encoder ändert"""
+        self.update_preset_warning()
+    
+    def on_preset_change(self, event=None):
+        """Wird aufgerufen, wenn sich das Preset ändert"""
+        self.update_preset_warning()
+    
+    def update_preset_warning(self):
+        """Aktualisiert die Warnung für Hardware-Encoder"""
+        encoder = self.encoder_var.get()
+        preset = self.preset_var.get()
+        
+        if encoder == "h264_nvenc":
+            if preset in ["veryslow", "slower", "slow"]:
+                self.warning_label.config(text="→ slow", foreground="orange")
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                self.warning_label.config(text="→ fast", foreground="orange")
+            else:
+                self.warning_label.config(text="→ medium", foreground="orange")
+        elif encoder == "h264_amf":
+            if preset in ["veryslow", "slower", "slow"]:
+                self.warning_label.config(text="→ quality", foreground="orange")
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                self.warning_label.config(text="→ speed", foreground="orange")
+            else:
+                self.warning_label.config(text="→ balanced", foreground="orange")
+        elif encoder == "h264_qsv":
+            if preset in ["veryslow", "slower", "slow"]:
+                self.warning_label.config(text="→ slow", foreground="orange")
+            elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
+                self.warning_label.config(text="→ fast", foreground="orange")
+            else:
+                self.warning_label.config(text="→ medium", foreground="orange")
+        else:
+            self.warning_label.config(text="", foreground="orange")
+    
     def update_crf_label(self, value):
         """Aktualisiert das CRF-Label"""
         self.crf_label.config(text=str(int(float(value))))
@@ -125,6 +168,9 @@ class SettingsFrame(ttk.LabelFrame):
         self.overwrite_var.set(self.config.get("overwrite_files", False))
         self.optimize_var.set(self.config.get("auto_optimize_large_files", True))
         self.split_var.set(self.config.get("split_large_files", True))
+        
+        # Aktualisiere die Preset-Warnung
+        self.update_preset_warning()
     
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in der Konfiguration"""
