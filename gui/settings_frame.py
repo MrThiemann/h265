@@ -146,6 +146,26 @@ class SettingsFrame(ttk.LabelFrame):
         else:
             self.warning_label.config(text="", foreground="orange")
     
+    def set_available_encoders(self, available_encoders):
+        """Setzt die verfügbaren Encoder basierend auf der tatsächlichen Verfügbarkeit"""
+        current_encoder = self.encoder_var.get()
+        
+        # Aktualisiere die Encoder-Liste
+        self.encoder_combo['values'] = available_encoders
+        
+        # Prüfe ob der aktuelle Encoder noch verfügbar ist
+        if current_encoder not in available_encoders:
+            if "libx264" in available_encoders:
+                self.encoder_var.set("libx264")
+                self.warning_label.config(text="⚠️ Hardware-Encoder nicht verfügbar", foreground="red")
+            else:
+                self.warning_label.config(text="⚠️ Keine Encoder verfügbar", foreground="red")
+        else:
+            self.warning_label.config(text="", foreground="orange")
+        
+        # Aktualisiere die Preset-Warnung
+        self.update_preset_warning()
+    
     def update_crf_label(self, value):
         """Aktualisiert das CRF-Label"""
         self.crf_label.config(text=str(int(float(value))))

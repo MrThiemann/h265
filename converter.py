@@ -155,11 +155,64 @@ class VideoConverter:
                 self.log(f"Konvertierung erfolgreich: {os.path.basename(output_file)}")
                 return True
             else:
-                self.log(f"Fehler bei der Konvertierung: {os.path.basename(input_file)} (Code: {return_code})")
-                return False
+                # Prüfe ob es ein Hardware-Encoder-Problem ist
+                if encoder != "libx264" and "Cannot load" in str(process.stderr) or "Error while opening encoder" in str(process.stderr):
+                    self.log(f"Hardware-Encoder {encoder} fehlgeschlagen, versuche Software-Encoder...")
+                    return self.convert_with_software_fallback(input_file, output_file, crf, preset, profile, threads)
+                else:
+                    self.log(f"Fehler bei der Konvertierung: {os.path.basename(input_file)} (Code: {return_code})")
+                    return False
                 
         except Exception as e:
             self.log(f"Fehler: {str(e)}")
+            return False
+    
+    def convert_with_software_fallback(self, input_file: str, output_file: str, 
+                                     crf: int, preset: str, profile: str, threads: str) -> bool:
+        """Konvertiert mit Software-Encoder als Fallback"""
+        try:
+            self.log("Verwende Software-Encoder (libx264) als Fallback...")
+            
+            # Baue FFmpeg-Befehl für Software-Encoder
+            cmd = ['ffmpeg', '-i', input_file, '-y', '-c:v', 'libx264', 
+                   '-preset', preset, '-crf', str(crf), '-profile:v', profile, 
+                   '-c:a', 'copy', output_file]
+            
+            # Threading
+            if threads != "Auto":
+                if threads == "Max":
+                    cmd.extend(['-threads', '0'])
+                else:
+                    cmd.extend(['-threads', threads])
+            
+            # Führe FFmpeg aus
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
+                                     stderr=subprocess.PIPE, text=True, 
+                                     bufsize=1, universal_newlines=True)
+            
+            # Überwache den Prozess
+            while True:
+                output = process.stderr.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    output = output.strip()
+                    if output and not output.startswith('frame='):
+                        if self.progress_callback:
+                            self.progress_callback(f"[Software-Fallback] {output}")
+            
+            # Warte auf Beendigung
+            return_code = process.wait()
+            
+            if return_code == 0:
+                self.log(f"Software-Encoder Konvertierung erfolgreich: {os.path.basename(output_file)}")
+                return True
+            else:
+                self.log(f"Software-Encoder Konvertierung fehlgeschlagen: {os.path.basename(input_file)} (Code: {return_code})")
+                return False
+                
+        except Exception as e:
+            self.log(f"Fehler bei Software-Encoder Fallback: {str(e)}")
             return False
     
     def convert_files(self, file_list: List[Dict], encoder: str, crf: int, 
@@ -223,22 +276,47 @@ class VideoConverter:
             result = subprocess.run(['ffmpeg', '-encoders'], 
                                   capture_output=True, text=True, timeout=10)
             if 'h264_nvenc' in result.stdout:
-                available.append("h264_nvenc")
-        except:
-            pass
+                # Teste ob der Encoder tatsächlich funktioniert
+                test_result = subprocess.run([
+                    'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
+                    '-c:v', 'h264_nvenc', '-t', '1', '-y', 'NUL'
+                ], capture_output=True, text=True, timeout=30)
+                if test_result.returncode == 0:
+                    available.append("h264_nvenc")
+                    self.log("NVIDIA NVENC Encoder: Verfügbar und funktionsfähig")
+                else:
+                    self.log("NVIDIA NVENC Encoder: Verfügbar aber nicht funktionsfähig (CUDA-Treiber fehlen)")
+        except Exception as e:
+            self.log(f"Fehler beim Testen von NVIDIA NVENC: {str(e)}")
         
         # Prüfe AMD
         try:
             if 'h264_amf' in result.stdout:
-                available.append("h264_amf")
-        except:
-            pass
+                test_result = subprocess.run([
+                    'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
+                    '-c:v', 'h264_amf', '-t', '1', '-y', 'NUL'
+                ], capture_output=True, text=True, timeout=30)
+                if test_result.returncode == 0:
+                    available.append("h264_amf")
+                    self.log("AMD AMF Encoder: Verfügbar und funktionsfähig")
+                else:
+                    self.log("AMD AMF Encoder: Verfügbar aber nicht funktionsfähig")
+        except Exception as e:
+            self.log(f"Fehler beim Testen von AMD AMF: {str(e)}")
         
         # Prüfe Intel
         try:
             if 'h264_qsv' in result.stdout:
-                available.append("h264_qsv")
-        except:
-            pass
+                test_result = subprocess.run([
+                    'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
+                    '-c:v', 'h264_qsv', '-t', '1', '-y', 'NUL'
+                ], capture_output=True, text=True, timeout=30)
+                if test_result.returncode == 0:
+                    available.append("h264_qsv")
+                    self.log("Intel QSV Encoder: Verfügbar und funktionsfähig")
+                else:
+                    self.log("Intel QSV Encoder: Verfügbar aber nicht funktionsfähig")
+        except Exception as e:
+            self.log(f"Fehler beim Testen von Intel QSV: {str(e)}")
         
         return available

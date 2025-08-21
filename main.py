@@ -168,9 +168,13 @@ class H264ConverterApp:
         self.encoder_status.config(text=encoder_text)
         
         # Aktualisiere die Encoder-Liste in den Einstellungen
-        self.settings_frame.encoder_combo['values'] = available_encoders
-        if available_encoders and self.settings_frame.encoder_var.get() not in available_encoders:
-            self.settings_frame.encoder_var.set(available_encoders[0])
+        self.settings_frame.set_available_encoders(available_encoders)
+        
+        # Zeige Warnung wenn Hardware-Encoder nicht verfügbar sind
+        if len(available_encoders) == 1 and "libx264" in available_encoders:
+            self.log_frame.add_warning("Nur Software-Encoder verfügbar. Hardware-Encoder benötigen entsprechende Treiber.")
+        elif len(available_encoders) > 1:
+            self.log_frame.add_success(f"Hardware-Encoder verfügbar: {', '.join([e for e in available_encoders if e != 'libx264'])}")
     
     def add_files(self):
         """Öffnet den Datei-Dialog"""
