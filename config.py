@@ -7,7 +7,7 @@ class Config:
         self.config_file = Path("converter_config.json")
         self.default_config = {
             "output_directory": str(Path.home() / "Videos" / "Converted"),
-            "default_encoder": "libx264",
+            "default_encoder": "h264_amf",  # AMD-Encoder als Standard
             "default_crf": 23,
             "default_preset": "medium",
             "default_output_format": "MP4",

@@ -68,13 +68,19 @@ class VideoConverter:
                 cmd.extend(['-preset', 'medium'])
         elif encoder == "h264_amf":
             cmd.extend(['-c:v', 'h264_amf'])
-            # AMD AMF unterstützt nur bestimmte Presets
+            # AMD AMF verwendet quality-Parameter statt preset
             if preset in ["veryslow", "slower", "slow"]:
                 cmd.extend(['-quality', 'quality'])
             elif preset in ["faster", "veryfast", "superfast", "ultrafast"]:
                 cmd.extend(['-quality', 'speed'])
             else:
                 cmd.extend(['-quality', 'balanced'])
+            
+            # AMD-spezifische Parameter für bessere Qualität
+            cmd.extend(['-rc', 'cqp'])  # Constant QP Rate Control
+            cmd.extend(['-qp_i', '23'])  # I-Frame QP
+            cmd.extend(['-qp_p', '23'])  # P-Frame QP
+            cmd.extend(['-qp_b', '23'])  # B-Frame QP
         elif encoder == "h264_qsv":
             cmd.extend(['-c:v', 'h264_qsv'])
             # Intel QSV unterstützt nur bestimmte Presets
@@ -88,8 +94,11 @@ class VideoConverter:
         # Qualität (CRF für libx264, QP für Hardware-Encoder)
         if encoder == "libx264":
             cmd.extend(['-crf', str(crf)])
+        elif encoder == "h264_amf":
+            # AMD AMF verwendet bereits QP-Parameter oben
+            pass  # QP-Parameter wurden bereits gesetzt
         else:
-            # Hardware-Encoder verwenden QP statt CRF
+            # Andere Hardware-Encoder verwenden QP statt CRF
             qp = max(0, min(51, crf))  # Konvertiere CRF zu QP
             cmd.extend(['-qp', str(qp)])
         
@@ -271,27 +280,12 @@ class VideoConverter:
         """Ermittelt verfügbare Hardware-Encoder"""
         available = ["libx264"]  # Software-Encoder ist immer verfügbar
         
-        # Prüfe NVIDIA
+        # Prüfe AMD (Priorität für AMD-Systeme)
         try:
             result = subprocess.run(['ffmpeg', '-encoders'], 
                                   capture_output=True, text=True, timeout=10)
-            if 'h264_nvenc' in result.stdout:
-                # Teste ob der Encoder tatsächlich funktioniert
-                test_result = subprocess.run([
-                    'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
-                    '-c:v', 'h264_nvenc', '-t', '1', '-y', 'NUL'
-                ], capture_output=True, text=True, timeout=30)
-                if test_result.returncode == 0:
-                    available.append("h264_nvenc")
-                    self.log("NVIDIA NVENC Encoder: Verfügbar und funktionsfähig")
-                else:
-                    self.log("NVIDIA NVENC Encoder: Verfügbar aber nicht funktionsfähig (CUDA-Treiber fehlen)")
-        except Exception as e:
-            self.log(f"Fehler beim Testen von NVIDIA NVENC: {str(e)}")
-        
-        # Prüfe AMD
-        try:
             if 'h264_amf' in result.stdout:
+                # Teste ob der AMD Encoder tatsächlich funktioniert
                 test_result = subprocess.run([
                     'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
                     '-c:v', 'h264_amf', '-t', '1', '-y', 'NUL'
@@ -300,11 +294,11 @@ class VideoConverter:
                     available.append("h264_amf")
                     self.log("AMD AMF Encoder: Verfügbar und funktionsfähig")
                 else:
-                    self.log("AMD AMF Encoder: Verfügbar aber nicht funktionsfähig")
+                    self.log("AMD AMF Encoder: Verfügbar aber nicht funktionsfähig (Treiber-Problem)")
         except Exception as e:
             self.log(f"Fehler beim Testen von AMD AMF: {str(e)}")
         
-        # Prüfe Intel
+        # Prüfe Intel Quick Sync
         try:
             if 'h264_qsv' in result.stdout:
                 test_result = subprocess.run([
@@ -318,5 +312,26 @@ class VideoConverter:
                     self.log("Intel QSV Encoder: Verfügbar aber nicht funktionsfähig")
         except Exception as e:
             self.log(f"Fehler beim Testen von Intel QSV: {str(e)}")
+        
+        # NVIDIA nur prüfen wenn explizit gewünscht (für Hybrid-Systeme)
+        # Für reine AMD-Systeme überspringen wir NVIDIA
+        try:
+            # Prüfe ob wir auf einem AMD-System sind
+            if 'h264_amf' in available:
+                self.log("AMD-System erkannt - NVIDIA NVENC wird übersprungen")
+            else:
+                # Nur prüfen wenn AMD nicht verfügbar ist
+                if 'h264_nvenc' in result.stdout:
+                    test_result = subprocess.run([
+                        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
+                        '-c:v', 'h264_nvenc', '-t', '1', '-y', 'NUL'
+                    ], capture_output=True, text=True, timeout=30)
+                    if test_result.returncode == 0:
+                        available.append("h264_nvenc")
+                        self.log("NVIDIA NVENC Encoder: Verfügbar und funktionsfähig")
+                    else:
+                        self.log("NVIDIA NVENC Encoder: Verfügbar aber nicht funktionsfähig (CUDA-Treiber fehlen)")
+        except Exception as e:
+            self.log(f"Fehler beim Testen von NVIDIA NVENC: {str(e)}")
         
         return available
