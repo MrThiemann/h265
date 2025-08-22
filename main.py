@@ -298,7 +298,7 @@ class H264ConverterApp:
     
     def show_about(self):
         """Zeigt den Über-Dialog"""
-        about_text = """H.264 AVC Converter v1.0.0
+        about_text = """H.264 AVC Converter v1.1.0
 
 Ein Tool zur Konvertierung von H.265/HEVC Videos 
 in das H.264/AVC Format für bessere Kompatibilität.
@@ -309,8 +309,13 @@ Features:
 • Batch-Verarbeitung
 • Automatische Optimierung großer Dateien
 • Detailliertes Konvertierungsprotokoll
+• Intelligente Farbtiefe-Auswahl
+• QuickTime-Kompatibilität
 
-Entwickelt mit Python und FFmpeg"""
+Entwickelt mit Python und FFmpeg
+
+Entwickler: Karsten Thiemann
+GitHub: https://github.com/MrThiemann/h265"""
         
         messagebox.showinfo("Über", about_text)
     

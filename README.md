@@ -2,6 +2,9 @@
 
 Ein professionelles Tool zur Konvertierung von H.265/HEVC Video-Dateien in das H.264/AVC Format für bessere Kompatibilität auf allen Geräten.
 
+**Entwickelt von:** Karsten Thiemann  
+**GitHub Repository:** https://github.com/MrThiemann/h265
+
 ## 🎯 Hauptfunktionen
 
 ### Kernfunktionen
@@ -245,6 +248,9 @@ Das Konvertierungsprotokoll kann als Textdatei gespeichert werden und enthält d
 ## 🤝 Beitragen
 
 Verbesserungsvorschläge und Bug-Reports sind willkommen!
+
+**Entwickler:** Karsten Thiemann  
+**GitHub:** https://github.com/MrThiemann/h265
 
 ## 📄 Lizenz
 
