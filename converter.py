@@ -125,6 +125,48 @@ class VideoConverter:
         
         return cmd
     
+    def get_video_info(self, input_file: str) -> dict:
+        """Ermittelt Informationen über das Video"""
+        try:
+            cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', 
+                   '-show_streams', '-select_streams', 'v:0', input_file]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                if 'streams' in data and len(data['streams']) > 0:
+                    stream = data['streams'][0]
+                    return {
+                        'width': stream.get('width', 0),
+                        'height': stream.get('height', 0),
+                        'pix_fmt': stream.get('pix_fmt', ''),
+                        'bit_depth': stream.get('bits_per_raw_sample', 8),
+                        'codec_name': stream.get('codec_name', ''),
+                        'duration': stream.get('duration', 0)
+                    }
+        except Exception as e:
+            self.log(f"Fehler beim Ermitteln der Video-Informationen: {str(e)}")
+        
+        return {}
+    
+    def get_optimal_profile(self, video_info: dict, requested_profile: str) -> str:
+        """Ermittelt das optimale Encoding-Profil basierend auf der Video-Farbtiefe"""
+        bit_depth = video_info.get('bit_depth', 8)
+        pix_fmt = video_info.get('pix_fmt', '')
+        
+        # Für 10-Bit Videos muss high10 verwendet werden
+        if bit_depth == 10 or '10' in pix_fmt:
+            if requested_profile in ['baseline', 'main', 'high']:
+                self.log(f"10-Bit Video erkannt - verwende 'high10' Profil statt '{requested_profile}'")
+                return 'high10'
+            elif requested_profile in ['high422', 'high444']:
+                return requested_profile
+            else:
+                return 'high10'
+        
+        # Für 8-Bit Videos verwende das angeforderte Profil
+        return requested_profile
+    
     def convert_single_file(self, input_file: str, output_file: str, 
                            encoder: str, crf: int, preset: str, 
                            profile: str, threads: str) -> bool:
@@ -133,12 +175,18 @@ class VideoConverter:
             # Erstelle Ausgabeverzeichnis
             os.makedirs(os.path.dirname(output_file), exist_ok=True)
             
+            # Hole Video-Informationen für optimale Profil-Auswahl
+            video_info = self.get_video_info(input_file)
+            optimal_profile = self.get_optimal_profile(video_info, profile)
+            
             # Baue FFmpeg-Befehl
             cmd = self.build_ffmpeg_command(input_file, output_file, encoder, 
-                                          crf, preset, profile, threads)
+                                          crf, preset, optimal_profile, threads)
             
             self.log(f"Starte Konvertierung: {os.path.basename(input_file)}")
             self.log(f"Encoder: {encoder}, Preset: {preset}, Qualität: {crf}")
+            if optimal_profile != profile:
+                self.log(f"Profil angepasst: {profile} → {optimal_profile} (wegen {video_info.get('bit_depth', 8)}-Bit Video)")
             
             # Führe FFmpeg aus
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, 

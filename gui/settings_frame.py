@@ -56,6 +56,11 @@ class SettingsFrame(ttk.LabelFrame):
         self.profile_combo = ttk.Combobox(row2, textvariable=self.profile_var, 
                                          values=ENCODING_PROFILES, state="readonly", width=15)
         self.profile_combo.pack(side=tk.LEFT, padx=(5, 0))
+        self.profile_combo.bind('<<ComboboxSelected>>', self.on_profile_change)
+        
+        # Info über automatische Profil-Anpassung
+        self.profile_info = ttk.Label(row2, text="", foreground="blue", font=("Arial", 8))
+        self.profile_info.pack(side=tk.LEFT, padx=(10, 0))
         
         # Dritte Zeile: Ausgabeformat und Threads
         row3 = ttk.Frame(self)
@@ -108,6 +113,22 @@ class SettingsFrame(ttk.LabelFrame):
         split_check = ttk.Checkbutton(row5, text="Sehr große Dateien teilen", 
                                     variable=self.split_var)
         split_check.pack(side=tk.LEFT, padx=(20, 0))
+    
+    def update_profile_info(self):
+        """Aktualisiert die Profil-Information"""
+        profile = self.profile_var.get()
+        
+        if profile in ['baseline', 'main', 'high']:
+            self.profile_info.config(text="⚠️ Wird bei 10-Bit Videos automatisch zu high10 angepasst")
+        elif profile in ['high10', 'high422', 'high444']:
+            self.profile_info.config(text="✅ Unterstützt 10-Bit Videos")
+        else:
+            self.profile_info.config(text="")
+    
+    def on_profile_change(self, event=None):
+        """Wird aufgerufen, wenn sich das Profil ändert"""
+        self.update_profile_info()
+        self.update_preset_warning()
     
     def on_encoder_change(self, event=None):
         """Wird aufgerufen, wenn sich der Encoder ändert"""
@@ -191,6 +212,7 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Aktualisiere die Preset-Warnung
         self.update_preset_warning()
+        self.update_profile_info() # Aktualisiere die Profil-Info beim Laden
     
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in der Konfiguration"""

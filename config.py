@@ -11,7 +11,7 @@ class Config:
             "default_crf": 23,
             "default_preset": "medium",
             "default_output_format": "MP4",
-            "default_profile": "high",
+            "default_profile": "high10",  # high10 für 10-Bit Kompatibilität
             "max_threads": "Auto",
             "overwrite_files": False,
             "language": "de",
