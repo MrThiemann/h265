@@ -36,8 +36,8 @@ class H264ConverterApp:
     def setup_main_window(self):
         """Konfiguriert das Hauptfenster"""
         self.root.title("H.264 AVC Converter - H.265(HEVC) zu libx264")
-        self.root.geometry("700x500")  # Deutlich kompaktere Größe
-        self.root.minsize(600, 400)   # Kleinere Mindestgröße
+        self.root.geometry("1000x500")  # Breiter aber viel flacher
+        self.root.minsize(800, 400)    # Mindestgröße angepasst
         
         # Icon (falls vorhanden)
         try:
@@ -78,29 +78,37 @@ class H264ConverterApp:
         """Erstellt die Benutzeroberfläche"""
         # Hauptframe mit minimalen Abständen
         main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Linke Seite: Dateiliste und Einstellungen
-        left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 2))
+        # Obere Zeile: Dateiliste und Einstellungen nebeneinander
+        top_frame = ttk.Frame(main_frame)
+        top_frame.pack(fill=tk.X, pady=(0, 5))
         
-        # Dateiliste (kleiner)
+        # Linke Seite: Dateiliste (kleiner)
+        left_frame = ttk.Frame(top_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        
+        # Dateiliste
         self.file_list_frame = FileListFrame(left_frame)
-        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 2))
+        self.file_list_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Einstellungen (kompakter)
-        self.settings_frame = SettingsFrame(left_frame, self.config)
-        self.settings_frame.pack(fill=tk.X, pady=(0, 2))
+        # Rechte Seite: Einstellungen (kompakter)
+        right_frame = ttk.Frame(top_frame)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        
+        # Einstellungen
+        self.settings_frame = SettingsFrame(right_frame, self.config)
+        self.settings_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Untere Zeile: Konvertierungs-Buttons und Protokoll
+        bottom_frame = ttk.Frame(main_frame)
+        bottom_frame.pack(fill=tk.BOTH, expand=True)
         
         # Konvertierungs-Buttons
-        self.setup_conversion_buttons(left_frame)
+        self.setup_conversion_buttons(bottom_frame)
         
-        # Rechte Seite: Protokoll (kleiner)
-        right_frame = ttk.Frame(main_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(2, 0))
-        
-        # Protokoll
-        self.log_frame = LogFrame(right_frame)
+        # Protokoll (unten, breit)
+        self.log_frame = LogFrame(bottom_frame)
         self.log_frame.pack(fill=tk.BOTH, expand=True)
         
         # Statusleiste

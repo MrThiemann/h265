@@ -13,12 +13,12 @@ class FileListFrame(ttk.Frame):
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche"""
         # Titel
-        title_label = ttk.Label(self, text="Videodateien", font=("Arial", 12, "bold"))
-        title_label.pack(pady=(0, 10))
+        title_label = ttk.Label(self, text="Videodateien", font=("Arial", 10, "bold"))
+        title_label.pack(pady=(0, 3))
         
         # Dateiliste
         list_frame = ttk.Frame(self)
-        list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 3))
         
         # Scrollbar für die Liste
         scrollbar = ttk.Scrollbar(list_frame)
@@ -26,28 +26,28 @@ class FileListFrame(ttk.Frame):
         
         # Listbox für Dateien
         self.file_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                                      selectmode=tk.EXTENDED, height=3)  # Sehr kompakte Höhe von 4 auf 3
+                                      selectmode=tk.EXTENDED, height=2)  # Sehr kompakte Höhe
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.file_listbox.yview)
         
-        # Buttons
+        # Buttons in einer Reihe
         button_frame = ttk.Frame(self)
-        button_frame.pack(fill=tk.X, pady=(0, 10))
+        button_frame.pack(fill=tk.X, pady=(0, 3))
         
         # Einzelne Dateien hinzufügen
         add_files_btn = ttk.Button(button_frame, text="Dateien hinzufügen", 
                                   command=self.add_files)
-        add_files_btn.pack(side=tk.LEFT, padx=(0, 5))
+        add_files_btn.pack(side=tk.LEFT, padx=(0, 2))
         
         # Ordner hinzufügen
         add_folder_btn = ttk.Button(button_frame, text="Ordner hinzufügen", 
                                    command=self.add_folder)
-        add_folder_btn.pack(side=tk.LEFT, padx=(0, 5))
+        add_folder_btn.pack(side=tk.LEFT, padx=(0, 2))
         
         # Dateien entfernen
         remove_btn = ttk.Button(button_frame, text="Entfernen", 
                                command=self.remove_selected)
-        remove_btn.pack(side=tk.LEFT, padx=(0, 5))
+        remove_btn.pack(side=tk.LEFT, padx=(0, 2))
         
         # Liste leeren
         clear_btn = ttk.Button(button_frame, text="Liste leeren", 
@@ -55,7 +55,7 @@ class FileListFrame(ttk.Frame):
         clear_btn.pack(side=tk.LEFT)
         
         # Status
-        self.status_label = ttk.Label(self, text="Keine Dateien ausgewählt", font=("Arial", 8))  # Kleinere Schrift
+        self.status_label = ttk.Label(self, text="Keine Dateien ausgewählt", font=("Arial", 8))
         self.status_label.pack()
     
     def add_files(self):
