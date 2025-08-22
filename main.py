@@ -36,8 +36,8 @@ class H264ConverterApp:
     def setup_main_window(self):
         """Konfiguriert das Hauptfenster"""
         self.root.title("H.264 AVC Converter - H.265(HEVC) zu libx264")
-        self.root.geometry("900x700")  # Kompaktere Größe
-        self.root.minsize(700, 500)   # Kleinere Mindestgröße
+        self.root.geometry("800x600")  # Noch kompaktere Größe
+        self.root.minsize(600, 400)   # Kleinere Mindestgröße
         
         # Icon (falls vorhanden)
         try:
@@ -78,26 +78,26 @@ class H264ConverterApp:
         """Erstellt die Benutzeroberfläche"""
         # Hauptframe
         main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)  # Reduzierte Abstände von 10 auf 5
         
         # Linke Seite: Dateiliste und Einstellungen
         left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 3))  # Reduzierter Abstand von 5 auf 3
         
         # Dateiliste
         self.file_list_frame = FileListFrame(left_frame)
-        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))  # Reduzierter Abstand von 10 auf 5
+        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 3))  # Reduzierter Abstand von 5 auf 3
         
         # Einstellungen
         self.settings_frame = SettingsFrame(left_frame, self.config)
-        self.settings_frame.pack(fill=tk.X, pady=(0, 5))  # Reduzierter Abstand von 10 auf 5
+        self.settings_frame.pack(fill=tk.X, pady=(0, 3))  # Reduzierter Abstand von 5 auf 3
         
         # Konvertierungs-Buttons
         self.setup_conversion_buttons(left_frame)
         
         # Rechte Seite: Protokoll
         right_frame = ttk.Frame(main_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(3, 0))  # Reduzierter Abstand von 5 auf 3
         
         # Protokoll
         self.log_frame = LogFrame(right_frame)

@@ -13,7 +13,7 @@ class SettingsFrame(ttk.LabelFrame):
         """Erstellt die Benutzeroberfläche"""
         # Erste Zeile: Encoder und Preset
         row1 = ttk.Frame(self)
-        row1.pack(fill=tk.X, pady=3)  # Reduzierter Abstand von 5 auf 3
+        row1.pack(fill=tk.X, pady=2)  # Reduzierter Abstand von 3 auf 2
         
         # Encoder
         ttk.Label(row1, text="Encoder:").pack(side=tk.LEFT)
@@ -38,7 +38,7 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Zweite Zeile: CRF und Profile
         row2 = ttk.Frame(self)
-        row2.pack(fill=tk.X, pady=3)  # Reduzierter Abstand von 5 auf 3
+        row2.pack(fill=tk.X, pady=2)  # Reduzierter Abstand von 3 auf 2
         
         # CRF
         ttk.Label(row2, text="CRF (0-51):").pack(side=tk.LEFT)
@@ -64,7 +64,7 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Dritte Zeile: Ausgabeformat und Threads
         row3 = ttk.Frame(self)
-        row3.pack(fill=tk.X, pady=3)  # Reduzierter Abstand von 5 auf 3
+        row3.pack(fill=tk.X, pady=2)  # Reduzierter Abstand von 3 auf 2
         
         # Ausgabeformat
         ttk.Label(row3, text="Ausgabe:").pack(side=tk.LEFT)
@@ -82,7 +82,7 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Vierte Zeile: Ausgabeverzeichnis
         row4 = ttk.Frame(self)
-        row4.pack(fill=tk.X, pady=3)  # Reduzierter Abstand von 5 auf 3
+        row4.pack(fill=tk.X, pady=2)  # Reduzierter Abstand von 3 auf 2
         
         ttk.Label(row4, text="Ausgabe:").pack(side=tk.LEFT)
         self.output_dir_var = tk.StringVar()
@@ -94,7 +94,7 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Fünfte Zeile: Optionen
         row5 = ttk.Frame(self)
-        row5.pack(fill=tk.X, pady=3)  # Reduzierter Abstand von 5 auf 3
+        row5.pack(fill=tk.X, pady=2)  # Reduzierter Abstand von 3 auf 2
         
         # Farbtiefe-Modus
         ttk.Label(row5, text="Farbtiefe:").pack(side=tk.LEFT)

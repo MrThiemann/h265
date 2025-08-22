@@ -10,7 +10,7 @@ class LogFrame(ttk.LabelFrame):
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche"""
         # Log-Textbereich
-        self.log_text = scrolledtext.ScrolledText(self, height=10, width=80,  # Reduzierte Höhe von 12 auf 10
+        self.log_text = scrolledtext.ScrolledText(self, height=8, width=80,  # Reduzierte Höhe von 10 auf 8
                                                 wrap=tk.WORD, state=tk.DISABLED)
         self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         

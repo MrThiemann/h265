@@ -26,7 +26,7 @@ class FileListFrame(ttk.Frame):
         
         # Listbox für Dateien
         self.file_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                                      selectmode=tk.EXTENDED, height=6)  # Reduzierte Höhe von 8 auf 6
+                                      selectmode=tk.EXTENDED, height=4)  # Reduzierte Höhe von 6 auf 4
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.file_listbox.yview)
         
