@@ -148,7 +148,7 @@ class H264ConverterApp:
         self.encoder_status.pack(side=tk.LEFT, padx=5)
         
         # Version
-        version_label = ttk.Label(self.status_bar, text="v1.0.0")
+        version_label = ttk.Label(self.status_bar, text="v1.1.0")
         version_label.pack(side=tk.RIGHT, padx=5)
     
     def setup_converter(self):
