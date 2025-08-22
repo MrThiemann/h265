@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
-from config import ENCODERS, PRESETS, OUTPUT_FORMATS, ENCODING_PROFILES, THREAD_OPTIONS
+from config import ENCODERS, PRESETS, OUTPUT_FORMATS, ENCODING_PROFILES, THREAD_OPTIONS, COLOR_DEPTH_MODES, COLOR_DEPTH_DESCRIPTIONS
 
 class SettingsFrame(ttk.LabelFrame):
     def __init__(self, parent, config, **kwargs):
@@ -96,6 +96,19 @@ class SettingsFrame(ttk.LabelFrame):
         row5 = ttk.Frame(self)
         row5.pack(fill=tk.X, pady=5)
         
+        # Farbtiefe-Modus
+        ttk.Label(row5, text="Farbtiefe:").pack(side=tk.LEFT)
+        self.color_depth_var = tk.StringVar()
+        self.color_depth_combo = ttk.Combobox(row5, textvariable=self.color_depth_var, 
+                                             values=list(COLOR_DEPTH_MODES.keys()), 
+                                             state="readonly", width=25)
+        self.color_depth_combo.pack(side=tk.LEFT, padx=(5, 20))
+        self.color_depth_combo.bind('<<ComboboxSelected>>', self.on_color_depth_change)
+        
+        # Farbtiefe-Beschreibung
+        self.color_depth_desc = ttk.Label(row5, text="", foreground="blue", font=("Arial", 8))
+        self.color_depth_desc.pack(side=tk.LEFT, padx=(0, 20))
+        
         # Überschreiben
         self.overwrite_var = tk.BooleanVar()
         overwrite_check = ttk.Checkbutton(row5, text="Existierende Dateien überschreiben", 
@@ -129,6 +142,16 @@ class SettingsFrame(ttk.LabelFrame):
         """Wird aufgerufen, wenn sich das Profil ändert"""
         self.update_profile_info()
         self.update_preset_warning()
+    
+    def on_color_depth_change(self, event=None):
+        """Wird aufgerufen, wenn sich der Farbtiefe-Modus ändert"""
+        self.update_color_depth_description()
+    
+    def update_color_depth_description(self):
+        """Aktualisiert die Farbtiefe-Beschreibung"""
+        mode = self.color_depth_var.get()
+        description = COLOR_DEPTH_DESCRIPTIONS.get(mode, "")
+        self.color_depth_desc.config(text=description)
     
     def on_encoder_change(self, event=None):
         """Wird aufgerufen, wenn sich der Encoder ändert"""
@@ -209,10 +232,12 @@ class SettingsFrame(ttk.LabelFrame):
         self.overwrite_var.set(self.config.get("overwrite_files", False))
         self.optimize_var.set(self.config.get("auto_optimize_large_files", True))
         self.split_var.set(self.config.get("split_large_files", True))
+        self.color_depth_var.set(self.config.get("color_depth_mode", "auto"))
         
         # Aktualisiere die Preset-Warnung
         self.update_preset_warning()
         self.update_profile_info() # Aktualisiere die Profil-Info beim Laden
+        self.update_color_depth_description() # Aktualisiere die Farbtiefe-Beschreibung beim Laden
     
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in der Konfiguration"""
@@ -226,6 +251,7 @@ class SettingsFrame(ttk.LabelFrame):
         self.config.set("overwrite_files", self.overwrite_var.get())
         self.config.set("auto_optimize_large_files", self.optimize_var.get())
         self.config.set("split_large_files", self.split_var.get())
+        self.config.set("color_depth_mode", self.color_depth_var.get())
     
     def get_conversion_settings(self):
         """Gibt die aktuellen Konvertierungseinstellungen zurück"""
@@ -239,5 +265,6 @@ class SettingsFrame(ttk.LabelFrame):
             'output_directory': self.output_dir_var.get(),
             'overwrite': self.overwrite_var.get(),
             'optimize_large_files': self.optimize_var.get(),
-            'split_large_files': self.split_var.get()
+            'split_large_files': self.split_var.get(),
+            'color_depth_mode': self.color_depth_var.get()
         }

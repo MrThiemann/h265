@@ -18,7 +18,9 @@ class Config:
             "auto_optimize_large_files": True,
             "split_large_files": True,
             "large_file_threshold_mb": 500,
-            "extra_large_file_threshold_gb": 1
+            "extra_large_file_threshold_gb": 1,
+            "color_depth_mode": "auto",  # auto, quality, compatibility
+            "force_8bit": False  # Erzwingt 8-Bit für maximale Kompatibilität
         }
         self.config = self.load_config()
     
@@ -77,4 +79,18 @@ THREAD_OPTIONS = ["Auto", "1", "2", "4", "Max"]
 LANGUAGES = {
     "de": "Deutsch",
     "en": "English"
+}
+
+# Farbtiefe-Modi
+COLOR_DEPTH_MODES = {
+    "auto": "Automatisch (empfohlen)",
+    "quality": "Hohe Qualität (10-Bit)",
+    "compatibility": "Maximale Kompatibilität (8-Bit)"
+}
+
+# Farbtiefe-Beschreibungen
+COLOR_DEPTH_DESCRIPTIONS = {
+    "auto": "Wählt automatisch die beste Farbtiefe basierend auf dem Quellvideo",
+    "quality": "Behält 10-Bit Farbtiefe bei (beste Qualität, moderne Player)",
+    "compatibility": "Konvertiert zu 8-Bit (maximale Kompatibilität, alle Player)"
 }

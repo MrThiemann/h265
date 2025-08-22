@@ -264,7 +264,8 @@ class H264ConverterApp:
                 profile=settings['profile'],
                 threads=settings['threads'],
                 output_format=settings['output_format'],
-                overwrite=settings['overwrite']
+                overwrite=settings['overwrite'],
+                color_depth_mode=settings['color_depth_mode']
             )
             
         except Exception as e:
