@@ -36,8 +36,8 @@ class H264ConverterApp:
     def setup_main_window(self):
         """Konfiguriert das Hauptfenster"""
         self.root.title("H.264 AVC Converter - H.265(HEVC) zu libx264")
-        self.root.geometry("1000x800")
-        self.root.minsize(800, 600)
+        self.root.geometry("900x700")  # Kompaktere Größe
+        self.root.minsize(700, 500)   # Kleinere Mindestgröße
         
         # Icon (falls vorhanden)
         try:
@@ -86,11 +86,11 @@ class H264ConverterApp:
         
         # Dateiliste
         self.file_list_frame = FileListFrame(left_frame)
-        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))  # Reduzierter Abstand von 10 auf 5
         
         # Einstellungen
         self.settings_frame = SettingsFrame(left_frame, self.config)
-        self.settings_frame.pack(fill=tk.X, pady=(0, 10))
+        self.settings_frame.pack(fill=tk.X, pady=(0, 5))  # Reduzierter Abstand von 10 auf 5
         
         # Konvertierungs-Buttons
         self.setup_conversion_buttons(left_frame)
