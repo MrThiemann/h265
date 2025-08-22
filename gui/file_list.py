@@ -26,7 +26,7 @@ class FileListFrame(ttk.Frame):
         
         # Listbox für Dateien
         self.file_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                                      selectmode=tk.EXTENDED, height=4)  # Reduzierte Höhe von 6 auf 4
+                                      selectmode=tk.EXTENDED, height=3)  # Sehr kompakte Höhe von 4 auf 3
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.file_listbox.yview)
         
@@ -55,7 +55,7 @@ class FileListFrame(ttk.Frame):
         clear_btn.pack(side=tk.LEFT)
         
         # Status
-        self.status_label = ttk.Label(self, text="Keine Dateien ausgewählt")
+        self.status_label = ttk.Label(self, text="Keine Dateien ausgewählt", font=("Arial", 8))  # Kleinere Schrift
         self.status_label.pack()
     
     def add_files(self):

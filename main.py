@@ -36,7 +36,7 @@ class H264ConverterApp:
     def setup_main_window(self):
         """Konfiguriert das Hauptfenster"""
         self.root.title("H.264 AVC Converter - H.265(HEVC) zu libx264")
-        self.root.geometry("800x600")  # Noch kompaktere Größe
+        self.root.geometry("700x500")  # Deutlich kompaktere Größe
         self.root.minsize(600, 400)   # Kleinere Mindestgröße
         
         # Icon (falls vorhanden)
@@ -76,28 +76,28 @@ class H264ConverterApp:
     
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche"""
-        # Hauptframe
+        # Hauptframe mit minimalen Abständen
         main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)  # Reduzierte Abstände von 10 auf 5
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
         
         # Linke Seite: Dateiliste und Einstellungen
         left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 3))  # Reduzierter Abstand von 5 auf 3
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 2))
         
-        # Dateiliste
+        # Dateiliste (kleiner)
         self.file_list_frame = FileListFrame(left_frame)
-        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 3))  # Reduzierter Abstand von 5 auf 3
+        self.file_list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 2))
         
-        # Einstellungen
+        # Einstellungen (kompakter)
         self.settings_frame = SettingsFrame(left_frame, self.config)
-        self.settings_frame.pack(fill=tk.X, pady=(0, 3))  # Reduzierter Abstand von 5 auf 3
+        self.settings_frame.pack(fill=tk.X, pady=(0, 2))
         
         # Konvertierungs-Buttons
         self.setup_conversion_buttons(left_frame)
         
-        # Rechte Seite: Protokoll
+        # Rechte Seite: Protokoll (kleiner)
         right_frame = ttk.Frame(main_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(3, 0))  # Reduzierter Abstand von 5 auf 3
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(2, 0))
         
         # Protokoll
         self.log_frame = LogFrame(right_frame)
@@ -109,17 +109,17 @@ class H264ConverterApp:
     def setup_conversion_buttons(self, parent):
         """Erstellt die Konvertierungs-Buttons"""
         button_frame = ttk.Frame(parent)
-        button_frame.pack(fill=tk.X, pady=(0, 10))
+        button_frame.pack(fill=tk.X, pady=(0, 2))  # Kleinerer Abstand von 10 auf 2
         
         # Start-Button
         self.start_btn = ttk.Button(button_frame, text="Konvertierung starten", 
                                    command=self.start_conversion, style="Accent.TButton")
-        self.start_btn.pack(side=tk.LEFT, padx=(0, 5))
+        self.start_btn.pack(side=tk.LEFT, padx=(0, 3))  # Kleinerer Abstand von 5 auf 3
         
         # Stopp-Button
         self.stop_btn = ttk.Button(button_frame, text="Konvertierung stoppen", 
                                   command=self.stop_conversion, state=tk.DISABLED)
-        self.stop_btn.pack(side=tk.LEFT, padx=(0, 5))
+        self.stop_btn.pack(side=tk.LEFT, padx=(0, 3))  # Kleinerer Abstand von 5 auf 3
         
         # Einstellungen speichern
         save_btn = ttk.Button(button_frame, text="Einstellungen speichern", 

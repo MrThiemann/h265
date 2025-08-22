@@ -10,13 +10,13 @@ class LogFrame(ttk.LabelFrame):
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche"""
         # Log-Textbereich
-        self.log_text = scrolledtext.ScrolledText(self, height=8, width=80,  # Reduzierte Höhe von 10 auf 8
+        self.log_text = scrolledtext.ScrolledText(self, height=6, width=60,  # Sehr kompakte Höhe von 8 auf 6, Breite von 80 auf 60
                                                 wrap=tk.WORD, state=tk.DISABLED)
-        self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.log_text.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)  # Kleinere Abstände
         
         # Button-Frame
         button_frame = ttk.Frame(self)
-        button_frame.pack(fill=tk.X, padx=5, pady=(0, 5))
+        button_frame.pack(fill=tk.X, padx=3, pady=(0, 3))  # Kleinere Abstände
         
         # Log leeren
         clear_btn = ttk.Button(button_frame, text="Protokoll leeren", 
@@ -26,10 +26,10 @@ class LogFrame(ttk.LabelFrame):
         # In Datei speichern
         save_btn = ttk.Button(button_frame, text="Als Datei speichern", 
                              command=self.save_log)
-        save_btn.pack(side=tk.LEFT, padx=(5, 0))
+        save_btn.pack(side=tk.LEFT, padx=(3, 0))  # Kleinerer Abstand
         
         # Status-Label
-        self.status_label = ttk.Label(button_frame, text="Bereit")
+        self.status_label = ttk.Label(button_frame, text="Bereit", font=("Arial", 8))  # Kleinere Schrift
         self.status_label.pack(side=tk.RIGHT)
     
     def add_log_entry(self, message: str, level: str = "INFO"):
